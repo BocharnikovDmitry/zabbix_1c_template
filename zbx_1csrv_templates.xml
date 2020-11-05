@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.2</version>
+    <date>2020-11-05T10:25:38Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+        <group>
+            <name>Templates/Applications</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Server 1C</template>
+            <name>Server 1C</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+                <group>
+                    <name>Templates/Applications</name>
+                </group>
+            </groups>
+            <applications>
+                <application>
+                    <name>1C Memory</name>
+                </application>
+            </applications>
+            <items>
+                <item>
+                    <name>Утилизация памяти на rphost</name>
+                    <type>CALCULATED</type>
+                    <key>mem.rphost.util</key>
+                    <value_type>FLOAT</value_type>
+                    <units>%</units>
+                    <params>last(&quot;proc_info[rphost.exe,wkset,sum]&quot;)/(last(&quot;vm.memory.size[total]&quot;)/1024)*100</params>
+                    <applications>
+                        <application>
+                            <name>1C Memory</name>
+                        </application>
+                    </applications>
+                    <triggers>
+                        <trigger>
+                            <expression>{avg(5m)}&gt;={$RPHOST.HIGH}</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{avg(5m)}&lt;{$RPHOST.HIGH}</recovery_expression>
+                            <name>Память занимаема rphost.exe превышает {$RPHOST.HIGH} от всей памяти</name>
+                            <priority>HIGH</priority>
+                        </trigger>
+                        <trigger>
+                            <expression>{avg(5m)}&gt;={$RPHOST.WARNING}</expression>
+                            <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                            <recovery_expression>{avg(5m)}&lt;{$RPHOST.WARNING}</recovery_expression>
+                            <name>Память занимаема rphost.exe превышает {$RPHOST.WARNING} от всей памяти</name>
+                            <priority>WARNING</priority>
+                        </trigger>
+                    </triggers>
+                </item>
+                <item>
+                    <name>Память занятая Менеджером Кластера (rpmngr)</name>
+                    <key>proc_info[rmngr.exe,wkset,sum]</key>
+                    <history>7d</history>
+                    <applications>
+                        <application>
+                            <name>1C Memory</name>
+                        </application>
+                    </applications>
+                </item>
+                <item>
+                    <name>Память занятая Сервером Рабочих процессов (rphost)</name>
+                    <key>proc_info[rphost.exe,wkset,sum]</key>
+                    <applications>
+                        <application>
+                            <name>1C Memory</name>
+                        </application>
+                    </applications>
+                </item>
+            </items>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>1С Сервер</name>
+                    <key>1csrv[&quot;DiscoveryCluster&quot;,{$1C.VERSION}]</key>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Толстые клиенты на хосте {#HOST} кластера {#NAME}</name>
+                            <key>1csrv[&quot;1CV8&quot;,{$1C.VERSION},{#CLUSTER}]</key>
+                            <history>7d</history>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>1С Connection</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Тонкие клиенты на хосте {#HOST} кластера {#NAME}</name>
+                            <key>1csrv[&quot;1CV8C&quot;,{$1C.VERSION},{#CLUSTER}]</key>
+                            <history>7d</history>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>1С Connection</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Фоновые задания на хосте {#HOST} кластера {#NAME}</name>
+                            <key>1csrv[&quot;BackgroundJob&quot;,{$1C.VERSION},{#CLUSTER}]</key>
+                            <history>7d</history>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>1С Connection</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Сессии конфигуратора на хосте {#HOST} кластера {#NAME}</name>
+                            <key>1csrv[&quot;Designer&quot;,{$1C.VERSION},{#CLUSTER}]</key>
+                            <history>7d</history>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>1С Connection</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Базы на хосте {#HOST} кластера {#NAME}</name>
+                            <key>1csrv[&quot;InfoBase&quot;,{$1C.VERSION},{#CLUSTER}]</key>
+                            <delay>20m</delay>
+                            <history>30d</history>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>1C Base</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Выданные хостом {#HOST} лицензии</name>
+                            <key>1csrv[&quot;licenses&quot;,{$1C.VERSION},{#HOST}]</key>
+                            <history>7d</history>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>1C Licenses</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&gt;=({$LIC.TOTAL} - {$LIC.HIGH})</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{last()}&lt;({$LIC.TOTAL} - {$LIC.HIGH})</recovery_expression>
+                                    <name>Остаток лицензий на {#HOST} &lt;= {$LIC.HIGH}</name>
+                                    <priority>HIGH</priority>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{last()}&gt;=({$LIC.TOTAL} - {$LIC.WARNING})</expression>
+                                    <recovery_mode>RECOVERY_EXPRESSION</recovery_mode>
+                                    <recovery_expression>{last()}&lt;({$LIC.TOTAL} - {$LIC.WARNING})</recovery_expression>
+                                    <name>Остаток лицензий на {#HOST} &lt;= {$LIC.WARNING}</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>WEB клиенты на хосте {#HOST} кластера {#NAME}</name>
+                            <key>1csrv[&quot;WebClient&quot;,{$1C.VERSION},{#CLUSTER}]</key>
+                            <history>7d</history>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>1С Connection</name>
+                                </application_prototype>
+                            </application_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                    <graph_prototypes>
+                        <graph_prototype>
+                            <name>Выданные сервером {#HOST} лицензии</name>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>199C0D</color>
+                                    <item>
+                                        <host>Server 1C</host>
+                                        <key>1csrv[&quot;licenses&quot;,{$1C.VERSION},{#HOST}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                        <graph_prototype>
+                            <name>Открытые сессии на хосте {#HOST} кластера {#NAME}</name>
+                            <type>STACKED</type>
+                            <graph_items>
+                                <graph_item>
+                                    <sortorder>1</sortorder>
+                                    <color>F7941D</color>
+                                    <item>
+                                        <host>Server 1C</host>
+                                        <key>1csrv[&quot;1CV8C&quot;,{$1C.VERSION},{#CLUSTER}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>2</sortorder>
+                                    <color>2774A4</color>
+                                    <item>
+                                        <host>Server 1C</host>
+                                        <key>1csrv[&quot;1CV8&quot;,{$1C.VERSION},{#CLUSTER}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>3</sortorder>
+                                    <color>199C0D</color>
+                                    <item>
+                                        <host>Server 1C</host>
+                                        <key>1csrv[&quot;WebClient&quot;,{$1C.VERSION},{#CLUSTER}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>4</sortorder>
+                                    <color>FC6EA3</color>
+                                    <item>
+                                        <host>Server 1C</host>
+                                        <key>1csrv[&quot;BackgroundJob&quot;,{$1C.VERSION},{#CLUSTER}]</key>
+                                    </item>
+                                </graph_item>
+                                <graph_item>
+                                    <sortorder>5</sortorder>
+                                    <color>F63100</color>
+                                    <item>
+                                        <host>Server 1C</host>
+                                        <key>1csrv[&quot;Designer&quot;,{$1C.VERSION},{#CLUSTER}]</key>
+                                    </item>
+                                </graph_item>
+                            </graph_items>
+                        </graph_prototype>
+                    </graph_prototypes>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$1C.VERSION}</macro>
+                    <value>8.3</value>
+                </macro>
+                <macro>
+                    <macro>{$HOSTNAME}</macro>
+                </macro>
+                <macro>
+                    <macro>{$LIC.HIGH}</macro>
+                    <value>2</value>
+                </macro>
+                <macro>
+                    <macro>{$LIC.TOTAL}</macro>
+                    <value>10</value>
+                </macro>
+                <macro>
+                    <macro>{$LIC.WARNING}</macro>
+                    <value>4</value>
+                </macro>
+                <macro>
+                    <macro>{$RPHOST.HIGH}</macro>
+                    <value>75</value>
+                </macro>
+                <macro>
+                    <macro>{$RPHOST.WARNING}</macro>
+                    <value>50</value>
+                </macro>
+            </macros>
+            <dashboards>
+                <dashboard>
+                    <name>1C Server</name>
+                    <widgets>
+                        <widget>
+                            <type>GRAPH_CLASSIC</type>
+                            <y>5</y>
+                            <width>24</width>
+                            <height>5</height>
+                            <fields>
+                                <field>
+                                    <type>GRAPH</type>
+                                    <name>graphid</name>
+                                    <value>
+                                        <name>Используемая службами 1С память</name>
+                                        <host>Server 1C</host>
+                                    </value>
+                                </field>
+                            </fields>
+                        </widget>
+                        <widget>
+                            <type>GRAPH_PROTOTYPE</type>
+                            <width>12</width>
+                            <height>5</height>
+                            <fields>
+                                <field>
+                                    <type>INTEGER</type>
+                                    <name>columns</name>
+                                    <value>1</value>
+                                </field>
+                                <field>
+                                    <type>GRAPH_PROTOTYPE</type>
+                                    <name>graphid</name>
+                                    <value>
+                                        <name>Открытые сессии на хосте {#HOST} кластера {#NAME}</name>
+                                        <host>Server 1C</host>
+                                    </value>
+                                </field>
+                            </fields>
+                        </widget>
+                        <widget>
+                            <type>GRAPH_PROTOTYPE</type>
+                            <x>12</x>
+                            <width>12</width>
+                            <height>5</height>
+                            <fields>
+                                <field>
+                                    <type>INTEGER</type>
+                                    <name>columns</name>
+                                    <value>1</value>
+                                </field>
+                                <field>
+                                    <type>GRAPH_PROTOTYPE</type>
+                                    <name>graphid</name>
+                                    <value>
+                                        <name>Выданные сервером {#HOST} лицензии</name>
+                                        <host>Server 1C</host>
+                                    </value>
+                                </field>
+                            </fields>
+                        </widget>
+                    </widgets>
+                </dashboard>
+            </dashboards>
+        </template>
+    </templates>
+    <graphs>
+        <graph>
+            <name>Используемая службами 1С память</name>
+            <graph_items>
+                <graph_item>
+                    <sortorder>1</sortorder>
+                    <color>199C0D</color>
+                    <item>
+                        <host>Server 1C</host>
+                        <key>proc_info[rmngr.exe,wkset,sum]</key>
+                    </item>
+                </graph_item>
+                <graph_item>
+                    <sortorder>2</sortorder>
+                    <color>F63100</color>
+                    <item>
+                        <host>Server 1C</host>
+                        <key>proc_info[rphost.exe,wkset,sum]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
+</zabbix_export>
